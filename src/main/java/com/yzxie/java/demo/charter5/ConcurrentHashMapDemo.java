@@ -22,12 +22,16 @@ public class ConcurrentHashMapDemo {
      */
     static void testSetValue() {
         final AtomicInteger counter = new AtomicInteger();
-        // 本地缓存定义
-        final ConcurrentHashMap<String, Set<String>> subscribeCache = new ConcurrentHashMap<>();
+
+        // 本地缓存定义，key为String类型，value为Set类型
+        final ConcurrentHashMap<String, Set<String>> subscribeCache =
+                new ConcurrentHashMap<>();
+
+        // 订阅主题
         final String topic = "mytopic";
 
-        // 线程thread1负责填充缓存subscribeCache
-        Thread thread1 = new Thread(new Runnable() {
+        // 线程producer负责填充缓存subscribeCache
+        Thread producer = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
@@ -38,8 +42,11 @@ public class ConcurrentHashMapDemo {
 
                         // ConcurrentSkipListSet为线程安全的
                         devices = new ConcurrentSkipListSet<>();
+
                         subscribeCache.put(topic, devices);
                     }
+
+                    // 模拟生成客户端设备ID
                     devices.add("device" + counter.incrementAndGet());
 
                     // 每隔2秒写入一次
@@ -49,15 +56,18 @@ public class ConcurrentHashMapDemo {
                         e.printStackTrace();
                     }
                 }
-
             }
         });
-        // 线程thread2负责读取缓存subscribeCache
-        Thread thread2 = new Thread(new Runnable() {
+
+        // 线程consumer负责读取缓存subscribeCache
+        Thread consumer = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (subscribeCache.size() > 0) {
+
+                    // 打印整个value的值，内部会使用Set接口实现类的迭代器
                     System.out.println(subscribeCache.get(topic));
+
                     // 每隔2秒读取一次
                     try {
                         Thread.sleep(2000);
@@ -68,8 +78,9 @@ public class ConcurrentHashMapDemo {
             }
         });
 
-        thread1.start();
-        thread2.start();
+// 启动线程
+        producer.start();
+        consumer.start();
     }
 
     /**
