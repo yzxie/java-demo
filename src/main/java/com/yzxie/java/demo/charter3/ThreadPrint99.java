@@ -1,7 +1,5 @@
 package com.yzxie.java.demo.charter3;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Author: xieyizun
  * Version: 1.0
