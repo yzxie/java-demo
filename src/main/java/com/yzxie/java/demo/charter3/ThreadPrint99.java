@@ -21,6 +21,7 @@ public class ThreadPrint99 {
                 public void run() {
                     try {
                         synchronized (lock) {
+                            // 等待轮到自己打印
                             while (totalNum != num) {
                                 lock.wait();
                             }
